@@ -16,8 +16,8 @@ namespace OrderAndDetail.Controllers
         }
         public IActionResult ListPage()
         {
-            ///////zzzzz
-            //wgdudjhd
+            
+            
             var data = from Orders in _context.Orders
                        join OrderDetail in _context.orderDetails
                        on Orders.OrderID equals OrderDetail.OrderID
@@ -48,6 +48,7 @@ namespace OrderAndDetail.Controllers
 
             //               }).ToList()
             //           };
+            ////////
             var list = data
                     .GroupBy(x => x.OrderID)
                     .Select(g => new OrderDTO
