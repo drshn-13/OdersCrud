@@ -16,6 +16,7 @@ namespace OrderAndDetail.Controllers
         }
         public IActionResult ListPage()
         {
+            //wgdudjhd
             var data = from Orders in _context.Orders
                        join OrderDetail in _context.orderDetails
                        on Orders.OrderID equals OrderDetail.OrderID
