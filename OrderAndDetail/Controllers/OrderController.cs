@@ -48,6 +48,7 @@ namespace OrderAndDetail.Controllers
 
             //               }).ToList()
             //           };
+            ////////
             var list = data
                     .GroupBy(x => x.OrderID)
                     .Select(g => new OrderDTO
