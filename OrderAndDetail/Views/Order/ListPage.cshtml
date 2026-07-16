@@ -1,0 +1,366 @@
+﻿@model List<OrderAndDetail.Models.OrderDTO>
+
+    <div>
+        <div>
+            <input type="hidden" id="OrderID" />
+        </div>
+        <div>
+            <label>OrderName</label>
+            <input type="text" id="OrderName" class="form-control "/>
+        </div>
+        <div>
+            <label>OrderDes</label>
+        <input type="text" id="OrderDes" class="form-control" />
+        </div>
+        <div>
+        <input id="OrderDetailID" class="form-control" type="hidden" readonly/>
+        </div>
+        <div>
+            <label>Amount</label>
+        <input type="text" id="Amount" class="form-control" />
+        </div>
+        <div>
+        <label>Quantity</label>
+        <input type="text" id="Quantity" class="form-control" onchange="cal()"/>
+        </div>
+        <div>
+            <label>Total</label>
+            <input type="text" id="Total" class="form-control"  readonly />
+
+        </div>
+        <div>
+            <button class="btn btn-primary" id="Add" onclick="add()">Add</button>
+        </div>
+        <div>
+            <table class="table table-bordered" id="table">
+                <thead>
+                    <tr>
+                        <th>
+                        OrderDetailID
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                        <th>
+                        Quantity
+                        </th>
+                        <th>
+                            Total
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tBody">
+
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <button class="btn btn-primary" type="button" id="save" onclick="save()">Save</button>
+        </div>
+    </div>
+    
+    <hr />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>OrderName</th>
+                <th>OrderDes</th>
+                <th>Amount</th>
+                <th>Quantity</th>
+            <th>Total</th>
+            <th>No. Of Orders</th>
+                <th>Action</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model)
+            {
+             <tr>
+                @* <td>@item.OrderName</td>
+                <td>@item.OrderDes</td>
+                @foreach(var detials in item.orderDetails)
+                {
+                    <td>@detials.Amount</td>
+                    <td>@detials.Quantity</td>
+                    <td>@detials.Total</td>
+                    <td>@detials.NumberOfOrder</td> 
+                }
+                
+                <td>
+                    <button class="btn btn-primary" type="button" onclick="editOrderAndDetail(@item.OrderID)">Edit</button>
+                    <button class="btn btn-primary" type="button">Delete</button>
+                </td> *@
+                <td>@item.OrderName</td>
+                <td>
+                    @item.OrderDes
+                </td>
+                <td>@item.Amount</td>
+                <td>@item.Quantity</td>
+                <td>@item.Total</td>
+                <td>@item.NumberOfOrder</td>
+                <td>
+                    <button class="btn btn-primary" type="button" onclick="editOrderAndDetail(@item.OrderID)">Edit</button>
+                    <button class="btn btn-primary" type="button" onclick="entiredelete(@item.OrderID)">Delete</button>
+                </td>
+            </tr>
+            }
+           
+        </tbody>
+    </table>
+    @section Scripts{
+        <script>
+            var OrderDto=[];
+              var DeletedRows = [];
+            // var OrderDtoUpdate=[]
+            //total function
+            function cal(){
+                var x=$("#Amount").val()
+                var y=$("#Quantity").val();
+                var Total = x*y;
+
+                $("#Total").val(Total);
+                console.log(Total);
+            }
+            //add fuction that add data to temptable and also update data to temp table
+             
+                   function add() {
+
+            var obj = {
+
+                OrderDetailID: Number($("#OrderDetailID").val()),
+                OrderID: Number($("#OrderID").val()),
+                Amount: Number($("#Amount").val()),
+                Quantity: Number($("#Quantity").val()),
+                Total: Number($("#Total").val())
+
+            };
+            if (obj.OrderDetailID >0)
+            {
+                      var index = OrderDto.findIndex(x => x.OrderDetailID == obj.OrderDetailID);
+
+               if (index != -1) {
+
+                  OrderDto[index] = obj;
+
+                  $("#" + obj.OrderDetailID).replaceWith(`
+
+                  <tr id="${obj.OrderDetailID}">
+
+                      <td>${obj.OrderDetailID}</td>
+                      <td>${obj.Amount}</td>
+                      <td>${obj.Quantity}</td>
+                      <td>${obj.Total}</td>
+
+                      <td>
+
+                      <button class="btn btn-warning"
+                      onclick="editSingleOrderDetail(${obj.OrderDetailID})">
+
+                      Edit
+
+                      </button>
+
+                      <button class="btn btn-danger"
+                      onclick="deleteSingleOrderDetail(${obj.OrderDetailID})">
+
+                      Delete
+
+                      </button>
+
+                      </td>
+
+                  </tr>
+
+                  `);
+
+              }
+            }
+            else
+            {
+                  
+
+                  OrderDto.push(obj);
+
+                  $("#tBody").append(`
+
+                  <tr id="${obj.OrderDetailID}">
+
+                      <td>${obj.OrderDetailID}</td>
+                      <td>${obj.Amount}</td>
+                      <td>${obj.Quantity}</td>
+                      <td>${obj.Total}</td>
+
+                        <td><button class="btn btn-danger"
+                        onclick="deleteSingleOrderDetail(${obj.OrderDetailID})">
+
+                        Delete
+
+                        </button></td>
+
+                  </tr>
+
+                  `);
+            }
+            $("#OrderDetailID").val("");
+            $("#Amount").val("");
+            $("#Quantity").val("");
+            $("#Total").val("");
+
+        };
+            function save(){
+               
+                if  ($("#OrderID").val() > 0)    
+                {
+                      url='Order/Update'
+                }
+                else 
+                {
+                       url='Order/Save'
+                     }
+                                
+
+                var data={
+                        OrderID:$("#OrderID").val(),
+                        OrderName:$("#OrderName").val(),
+                        OrderDes:$("#OrderDes").val(),
+                        orders: OrderDto,
+                     DeletedRows: DeletedRows
+
+                };
+                   console.log("data",data);
+                   
+                $.ajax({
+                    url:url,
+                    type:'POST',
+                    data:data,
+                    
+                    success: function(response){
+                       alert(response.message);
+                       location.reload();
+                    }
+
+                })
+            };
+            function editOrderAndDetail(OrderID){
+                     OrderDto = [];
+                     DeletedRows = [];
+                $.ajax({
+                    
+                    url:'Order/GetOrder',
+                    type:'GET',
+                    data:{OrderID:OrderID},
+                    success:function(response){
+                       console.log("response",response);
+                    $("#table tBody").empty();
+                        console.log(response);
+                        response.forEach(function(item){
+                            console.log(item);
+                             $("#OrderID").val(item.orderID);
+                        $("#OrderName").val(item.orderName);
+                        $("#OrderDes").val(item.orderDes);
+                          $("#save").text("Update");
+
+                             OrderDto.push({
+
+                                  OrderDetailID: item.orderDetailID,
+                                  OrderID: item.orderID,
+                                  Amount: item.amount,
+                                  Quantity: item.quantity,
+                                 Total: item.total
+
+                             });
+
+                            $("#table tBody").append(`
+                              <tr id="${item.orderDetailID}">
+                                <td>${item.orderDetailID}</td>
+                                <td>${item.amount}</td>
+                                <td>${item.quantity}</td>
+                                <td>${item.total}</td>
+                                <td>
+                                    <button class="btn btn-warning"
+                                        onclick="editSingleOrderDetail(${item.orderDetailID})">
+                                        Edit
+                                    </button>
+
+                                    <button class="btn btn-danger"
+                                        onclick="deleteSingleOrderDetail(${item.orderDetailID})">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            `)
+                        })
+                    }
+                })
+            }
+        function editSingleOrderDetail(id)
+        
+        {
+            
+            $.ajax({
+                url:'Order/GetOrderDetail',
+                type:'GET',
+                data:{id:id},
+                success: function(data){
+                    console.log("response2",data)
+                    $("#OrderDetailID").val(data.orderDetailID)
+                    $("#Amount").val(data.amount);
+                    $("#Quantity").val(data.quantity);
+                    $("#Total").val(data.total);
+                    $("#save").text("Update")
+                }
+            })
+        };
+                function deleteSingleOrderDetail(id) {
+            if(id >0)
+            {
+                   DeletedRows.push(id);
+
+              OrderDto = OrderDto.filter(x => x.OrderDetailID != id);
+
+              $("#" + id).remove();
+
+            }
+            else
+            {
+                  $("#"+id).remove();
+            }
+            
+           
+
+        };
+         // function deleteSingleOrderDetail(id){
+         //     var TrID=id;
+         //                OrderDto.push($(`#${TrID}`));
+         //        $("#" + TrID).remove();
+               
+
+                      // console.log(OrderDto)
+             // $.ajax({
+             //     url:'Order/delete',
+             // type:'POST',
+             // data:{id:id},
+             // success: function(res){
+             //     alert(res.message);
+             //     location.reload();
+             // }
+             // })
+             // };
+      function entiredelete(id){
+        $.ajax({
+                 url:'Order/EntireConsumer',
+                 type:'POST',
+                 data:{id:id},
+                 success: function(res){
+                   alert(res.message);
+                    location.reload();
+                  }
+             })
+         }
+
+        </script>
+    }
