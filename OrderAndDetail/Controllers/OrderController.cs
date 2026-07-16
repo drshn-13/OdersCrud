@@ -16,6 +16,7 @@ namespace OrderAndDetail.Controllers
         }
         public IActionResult ListPage()
         {
+            ///////zzzzz
             //wgdudjhd
             var data = from Orders in _context.Orders
                        join OrderDetail in _context.orderDetails
